@@ -1,6 +1,7 @@
 package com.rentalhub.microservices.product_service.service;
 
 import com.rentalhub.microservices.product_service.dto.ProductRequest;
+import com.rentalhub.microservices.product_service.dto.ProductResponse;
 import com.rentalhub.microservices.product_service.model.Product;
 import com.rentalhub.microservices.product_service.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,7 @@ import java.util.List;
 public class ProductService {
     private final ProductRepository productRepository;
 
-    public Product createProduct(ProductRequest productRequest) {
+    public ProductResponse createProduct(ProductRequest productRequest) {
         Product product = Product.builder()
                 .name(productRequest.name())
                 .description(productRequest.description())
@@ -23,10 +24,21 @@ public class ProductService {
                 .build();
         productRepository.save(product);
         log.info("Product created successfully");
-        return product;
+        return new ProductResponse(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice());
     }
 
-    public List<Product> getAllProducts() {
-        return null;
+    public List<ProductResponse> getAllProducts() {
+        return productRepository.findAll()
+                .stream()
+                .map(product -> new ProductResponse(
+                        product.getId(),
+                        product.getName(),
+                        product.getDescription(),
+                        product.getPrice()))
+                .toList();
     }
 }
